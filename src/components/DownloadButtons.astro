@@ -74,11 +74,18 @@
     button.disabled = true;
 
     try {
+      // Get the actual computed background color from the card
+      const computedBgColor = getComputedStyle(node).backgroundColor;
+      // Fallback to the rs-primary-50 color if computed is transparent or empty
+      const bgColor = (!computedBgColor || computedBgColor === 'transparent' || computedBgColor === 'rgba(0, 0, 0, 0)')
+        ? 'hsla(207, 77%, 95%, 1)'
+        : computedBgColor;
+
       // Generate the image with better quality and preserve styling
       const dataUrl = await window.htmlToImage.toPng(node, {
         quality: 1.0,
         pixelRatio: 2, // Higher resolution
-        backgroundColor: 'transparent', // Keep original background
+        backgroundColor: bgColor, // Use actual card background color
         style: {
           transform: 'scale(1)',
           transformOrigin: 'top left',
