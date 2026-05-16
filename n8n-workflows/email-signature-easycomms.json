@@ -79,7 +79,13 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [780, -100],
-      "webhookId": "send-signature-email"
+      "webhookId": "send-signature-email",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "bUS0S4ZWz9gavO3f",
+          "name": "Gmail account"
+        }
+      }
     },
     {
       "parameters": {
@@ -130,7 +136,5 @@
   "pinData": {},
   "settings": {
     "executionOrder": "v1"
-  },
-  "staticData": null,
-  "tags": []
+  }
 }

@@ -92,7 +92,7 @@ Production env values:
 
 ```text
 EMAIL_SIGNATURE_API_KEY=<generated API key>
-EASYCOMMS_WEBHOOK_URL=<production EasyComms/n8n webhook URL>
+EASYCOMMS_WEBHOOK_URL=https://n8n-romega-n8n.ikuuwb.easypanel.host/webhook/rs-email-signature
 EASYCOMMS_WEBHOOK_TOKEN=<optional bearer token>
 EASYCOMMS_WEBHOOK_TIMEOUT_MS=10000
 EMAIL_SIGNATURE_ALLOWED_DOMAINS=romega-solutions.com
@@ -112,6 +112,19 @@ npm run qa:weekly-live
 ```
 
 It checks the public UI, health API, schema API, and protected headless contract when an API key is present.
+
+## Current n8n Workflow
+
+The EasyComms workflow has been imported and activated in n8n:
+
+| Field | Value |
+|---|---|
+| Workflow | `RS Email Signature EasyComms` |
+| Workflow ID | `YZk99jBjp49vowWk` |
+| Production webhook | `https://n8n-romega-n8n.ikuuwb.easypanel.host/webhook/rs-email-signature` |
+| Gmail credential | `Gmail account` |
+
+Set `EASYCOMMS_WEBHOOK_URL` on the deployed Email Signature app to the production webhook above.
 
 ## Headless API
 

@@ -21,6 +21,7 @@
 - [x] Automation payload request IDs and image metadata for n8n traceability
 - [x] EasyComms/n8n webhook timeout guard
 - [x] Import-ready starter n8n workflow in `n8n-workflows/`
+- [x] n8n workflow imported, Gmail credential bound, and activated as `YZk99jBjp49vowWk`
 - [x] Dockerfile for server deployment
 - [x] Easypanel compose file for server deployment
 - [x] API smoke QA script: `npm run qa:headless`
@@ -33,7 +34,7 @@
 ### Deployment
 
 - [ ] Configure `EMAIL_SIGNATURE_API_KEY` or shared `API_KEY` in production.
-- [ ] Configure `EASYCOMMS_WEBHOOK_URL` in production when the EasyComms/n8n workflow is ready.
+- [x] Configure the n8n production webhook URL for use by deployment docs.
 - [ ] Configure `EASYCOMMS_WEBHOOK_TOKEN` if the workflow requires bearer auth.
 - [ ] Deploy as a server app using `Dockerfile` or `docker-compose.easypanel.yml`, not static-only hosting.
 - [ ] Run `npm run qa:weekly-live` against the deployed URL.
@@ -42,7 +43,7 @@
 
 - [x] Create import-ready starter workflow that accepts `email_signature.send_requested`.
 - [x] Include a Gmail send node placeholder in `n8n-workflows/email-signature-easycomms.json`.
-- [ ] Select the live Gmail/SMTP credential after importing the workflow.
+- [x] Select the live Gmail credential after importing the workflow.
 - [ ] Keep the webhook credential in EasyComms/n8n, not in browser-exposed env.
 - [ ] Add this tool to the future consolidated RS Tools service registry.
 

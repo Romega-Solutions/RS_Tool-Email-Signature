@@ -8,6 +8,16 @@ n8n-workflows/email-signature-easycomms.json
 
 The workflow receives the `email_signature.send_requested` event from the Email Signature app, validates the payload, sends through a Gmail node, and responds to the app. Select the live Gmail or SMTP credential after import.
 
+Current live n8n workflow:
+
+```text
+Workflow name: RS Email Signature EasyComms
+Workflow ID: YZk99jBjp49vowWk
+Production webhook: https://n8n-romega-n8n.ikuuwb.easypanel.host/webhook/rs-email-signature
+Gmail credential: Gmail account
+Status: Active
+```
+
 ## Import With CLI
 
 The installed CLI command on this machine is `n8n-cli`.
@@ -30,7 +40,7 @@ After import:
 
 ```text
 EMAIL_SIGNATURE_API_KEY=<generated API key>
-EASYCOMMS_WEBHOOK_URL=<production n8n webhook URL>
+EASYCOMMS_WEBHOOK_URL=https://n8n-romega-n8n.ikuuwb.easypanel.host/webhook/rs-email-signature
 EASYCOMMS_WEBHOOK_TOKEN=<optional bearer token>
 EASYCOMMS_WEBHOOK_TIMEOUT_MS=10000
 EMAIL_SIGNATURE_ALLOWED_DOMAINS=romega-solutions.com

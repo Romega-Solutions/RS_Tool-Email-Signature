@@ -155,14 +155,5 @@
   "pinData": {},
   "settings": {
     "executionOrder": "v1"
-  },
-  "staticData": null,
-  "tags": [
-    {
-      "name": "rs-tools"
-    },
-    {
-      "name": "email-signature"
-    }
-  ]
+  }
 }

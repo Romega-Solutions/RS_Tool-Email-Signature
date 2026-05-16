@@ -22,7 +22,7 @@ Required app environment:
 
 ```text
 EMAIL_SIGNATURE_API_KEY=<generated API key>
-EASYCOMMS_WEBHOOK_URL=<EasyComms or n8n webhook URL>
+EASYCOMMS_WEBHOOK_URL=https://n8n-romega-n8n.ikuuwb.easypanel.host/webhook/rs-email-signature
 EASYCOMMS_WEBHOOK_TOKEN=<optional bearer token>
 EASYCOMMS_WEBHOOK_TIMEOUT_MS=10000
 EMAIL_SIGNATURE_ALLOWED_DOMAINS=romega-solutions.com
@@ -57,7 +57,15 @@ The recommended import-ready EasyComms workflow is included at:
 n8n-workflows/email-signature-easycomms.json
 ```
 
-Import it into n8n, select the Gmail credential in `Send Signature Email`, activate the workflow, then copy the production webhook URL into `EASYCOMMS_WEBHOOK_URL`.
+The workflow is imported and active in n8n as `RS Email Signature EasyComms` with workflow ID `YZk99jBjp49vowWk`.
+
+Production webhook URL:
+
+```text
+https://n8n-romega-n8n.ikuuwb.easypanel.host/webhook/rs-email-signature
+```
+
+If re-importing, select the Gmail credential in `Send Signature Email`, activate the workflow, then copy the production webhook URL into `EASYCOMMS_WEBHOOK_URL`.
 
 The workflow includes:
 
