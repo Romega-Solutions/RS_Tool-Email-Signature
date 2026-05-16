@@ -4,7 +4,7 @@ Internal Romega Solutions tool for generating branded email signatures and handi
 
 ## Status
 
-The app is now a server-deployable Astro 5 project with an Org Chart-style headless API contract:
+The app is now a server-deployable Astro 6 project with an Org Chart-style headless API contract:
 
 - UI preview and PNG download still work in the browser.
 - `Send to Email` posts to the same-origin `/api/signature/send` endpoint.
@@ -15,9 +15,10 @@ The app is now a server-deployable Astro 5 project with an Org Chart-style headl
 
 | Area | Value |
 |---|---|
-| Framework | Astro 5 + React + Tailwind |
+| Framework | Astro 6 + React + Tailwind 4 |
 | Runtime | Astro server output with `@astrojs/node` standalone adapter |
 | Package manager | npm |
+| Node.js | 22 LTS or newer |
 | Dev port | 4321 |
 | Automation | EasyComms/n8n webhook proxy |
 | Container | Dockerfile for standalone Astro server deployment |
@@ -28,6 +29,7 @@ The app is now a server-deployable Astro 5 project with an Org Chart-style headl
 npm install
 npm run dev
 npm run build
+npm audit --audit-level=moderate
 npm start
 npm run qa:headless
 npm run qa:weekly-live

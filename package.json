@@ -12,12 +12,13 @@
     "qa:weekly-live": "node scripts/weekly-live-qa.mjs"
   },
   "dependencies": {
-    "@astrojs/node": "^9.5.5",
-    "@astrojs/react": "^4.4.0",
-    "@astrojs/tailwind": "^6.0.2",
-    "astro": "^5.14.1",
+    "@astrojs/node": "^10.1.1",
+    "@astrojs/react": "^5.0.5",
+    "@tailwindcss/vite": "^4.3.0",
+    "astro": "^6.3.3",
     "html-to-image": "^1.11.13",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "tailwindcss": "^4.3.0"
   }
 }

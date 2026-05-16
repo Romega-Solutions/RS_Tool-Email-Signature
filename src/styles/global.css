@@ -1,5 +1,7 @@
 /* Keep Source Sans from Google Fonts (this one works fine) */
 @import url("https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap");
+@import "tailwindcss";
+@config "../../tailwind.config.js";
 
 /* Local Merriweather fonts */
 @font-face {
@@ -17,10 +19,6 @@
   font-style: normal;
   font-display: block;
 }
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 /* ================================
    ROMEGA SOLUTIONS COLOR SYSTEM

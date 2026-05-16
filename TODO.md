@@ -25,6 +25,7 @@
 - [x] Easypanel compose file for server deployment
 - [x] API smoke QA script: `npm run qa:headless`
 - [x] Production smoke QA script: `npm run qa:weekly-live`
+- [x] Astro 6 / Tailwind 4 / Node 22 runtime upgrade to clear the npm security audit
 - [x] Fixed `package.json` name
 
 ## Remaining
