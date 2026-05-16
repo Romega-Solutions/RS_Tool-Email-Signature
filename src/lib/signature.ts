@@ -21,6 +21,7 @@ export type ValidationResult =
 export const signatureSchema = {
   service: "email-signature",
   version: "0.1.0",
+  schemaVersion: "2026-05-17",
   fields: [
     { name: "name", type: "string", required: true, maxLength: 80 },
     { name: "title", type: "string", required: true, maxLength: 120 },
@@ -99,6 +100,22 @@ export function sanitizeImageDataUrl(value: unknown) {
   return value;
 }
 
+function makeRequestId() {
+  return typeof globalThis.crypto?.randomUUID === "function"
+    ? globalThis.crypto.randomUUID()
+    : `sig_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+}
+
+function getImageSizeBytes(imageDataUrl: string | null) {
+  if (!imageDataUrl) {
+    return 0;
+  }
+
+  const base64 = imageDataUrl.split(",", 2)[1] || "";
+  const padding = base64.endsWith("==") ? 2 : base64.endsWith("=") ? 1 : 0;
+  return Math.max(0, Math.floor((base64.length * 3) / 4) - padding);
+}
+
 export function buildSignatureHtml(profile: SignatureProfile) {
   return [
     `<strong>${escapeHtml(profile.name)}</strong><br>`,
@@ -122,11 +139,19 @@ export function buildSignatureText(profile: SignatureProfile) {
 }
 
 export function buildAutomationPayload(profile: SignatureProfile, input: SignatureInput) {
+  const imageDataUrl = sanitizeImageDataUrl(input.imageDataUrl);
+
   return {
     event: "email_signature.send_requested",
     tool: "RS_Tool-Email-Signature",
     service: "email-signature",
     version: "0.1.0",
+    metadata: {
+      schemaVersion: signatureSchema.schemaVersion,
+      requestId: makeRequestId(),
+      hasImage: Boolean(imageDataUrl),
+      imageSizeBytes: getImageSizeBytes(imageDataUrl),
+    },
     requestedAt: new Date().toISOString(),
     source: cleanText(input.source, 80) || "email-signature-ui",
     recipient: {
@@ -140,7 +165,7 @@ export function buildAutomationPayload(profile: SignatureProfile, input: Signatu
       text: buildSignatureText(profile),
     },
     assets: {
-      imageDataUrl: sanitizeImageDataUrl(input.imageDataUrl),
+      imageDataUrl,
     },
   };
 }

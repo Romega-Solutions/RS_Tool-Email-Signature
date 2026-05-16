@@ -6,6 +6,7 @@ const sampleProfile = {
   title: "Operations Coordinator",
   phone: "+63 900 000 0000",
   email: "qa@romega-solutions.com",
+  imageDataUrl: "data:image/png;base64,cWE=",
   source: "qa-headless",
 };
 
@@ -39,6 +40,16 @@ async function main() {
     record("health", "fail", `Unexpected health response: HTTP ${health.response.status}`);
   }
 
+  if (
+    health.response.ok &&
+    health.body?.data?.apiKeyConfigured === true &&
+    typeof health.body?.data?.webhookTimeoutMs === "number"
+  ) {
+    record("health-readiness", "pass", "Health endpoint exposes non-secret readiness metadata.");
+  } else {
+    record("health-readiness", "fail", "Health response is missing API key or webhook timeout readiness metadata.");
+  }
+
   const schema = await request("/api/signature/schema");
   const fields = schema.body?.data?.fields?.map((field) => field.name).join(",");
   if (schema.response.ok && fields === "name,title,phone,email") {
@@ -57,6 +68,18 @@ async function main() {
     record("validate", "pass", "Validation returns the EasyComms automation payload.");
   } else {
     record("validate", "fail", `Unexpected validation response: HTTP ${validate.response.status}`);
+  }
+
+  const metadata = validate.body?.data?.automationPayload?.metadata;
+  if (
+    metadata?.schemaVersion === "2026-05-17" &&
+    metadata?.requestId &&
+    metadata?.hasImage === true &&
+    metadata?.imageSizeBytes === 2
+  ) {
+    record("payload-metadata", "pass", "Automation payload includes request tracing and asset metadata.");
+  } else {
+    record("payload-metadata", "fail", `Unexpected payload metadata: ${JSON.stringify(metadata)}`);
   }
 
   const deniedHeadless = await request("/api/signature/headless");

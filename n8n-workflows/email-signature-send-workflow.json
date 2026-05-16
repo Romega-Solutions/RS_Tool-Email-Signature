@@ -1,0 +1,168 @@
+{
+  "name": "RS Email Signature Send",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## RS Email Signature Send\n\nWebhook path: email-signature-send\n\nThis workflow receives `email_signature.send_requested` from RS_Tool-Email-Signature. Keep webhook auth and mail credentials in n8n. Add the production webhook URL to the app as EASYCOMMS_WEBHOOK_URL."
+      },
+      "id": "9f5539a0-7d54-4d79-91d4-3bf4c136c1d9",
+      "name": "Setup Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -620,
+        -260
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "email-signature-send",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "97a983a9-17c5-4210-8b8b-9087b94f82c7",
+      "name": "Email Signature Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -460,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body ?? $json;\nconst required = [\n  ['event', body.event],\n  ['recipient.email', body.recipient?.email],\n  ['recipient.name', body.recipient?.name],\n  ['signature.name', body.signature?.name],\n  ['signature.title', body.signature?.title],\n  ['signature.phone', body.signature?.phone],\n  ['signature.email', body.signature?.email],\n];\nconst missing = required.filter(([, value]) => !value).map(([key]) => key);\nif (body.event !== 'email_signature.send_requested') {\n  missing.push('event=email_signature.send_requested');\n}\nif (missing.length > 0) {\n  return [{ json: { ok: false, statusCode: 422, error: `Missing or invalid fields: ${missing.join(', ')}` } }];\n}\nreturn [{\n  json: {\n    ok: true,\n    statusCode: 200,\n    recipientEmail: body.recipient.email,\n    recipientName: body.recipient.name,\n    subject: `Romega email signature for ${body.signature.name}`,\n    html: body.signature.html,\n    text: body.signature.text,\n    fileName: body.signature.fileName,\n    imageDataUrl: body.assets?.imageDataUrl ?? null,\n    sourcePayload: body,\n  },\n}];"
+      },
+      "id": "47032a6e-b15d-48c0-bfdd-bfe69a32a86a",
+      "name": "Validate Signature Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7af53f9e-bd56-47f3-a64e-84d1becfbd34",
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "0c2f4bd9-38e1-4205-9719-070df6ff204d",
+      "name": "Payload Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        20,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseCode": "={{ $json.statusCode }}",
+        "responseBody": "={{ { ok: true, message: 'Signature email accepted', recipient: $json.recipientEmail, fileName: $json.fileName } }}",
+        "options": {}
+      },
+      "id": "c90f2496-9708-4d53-95db-c5b9dd0a0e08",
+      "name": "Respond Accepted",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        280,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseCode": "={{ $json.statusCode }}",
+        "responseBody": "={{ { ok: false, error: $json.error } }}",
+        "options": {}
+      },
+      "id": "e8d7bdad-d20a-4892-98dd-91d52ded1e08",
+      "name": "Respond Invalid",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        280,
+        120
+      ]
+    }
+  ],
+  "connections": {
+    "Email Signature Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate Signature Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Signature Payload": {
+      "main": [
+        [
+          {
+            "node": "Payload Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Payload Valid?": {
+      "main": [
+        [
+          {
+            "node": "Respond Accepted",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Invalid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "rs-tools"
+    },
+    {
+      "name": "email-signature"
+    }
+  ]
+}

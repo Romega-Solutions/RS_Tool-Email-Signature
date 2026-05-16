@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { hasValidApiKey, jsonError, jsonOk, readJson } from "../../../lib/api";
+import { getWebhookTimeoutMs, hasValidApiKey, jsonError, jsonOk, readJson } from "../../../lib/api";
 import {
   buildAutomationPayload,
   isAllowedEmailDomain,
@@ -43,6 +43,9 @@ export const POST: APIRoute = async ({ request }) => {
 
   const payload = buildAutomationPayload(normalized.profile, body);
   const token = process.env.EASYCOMMS_WEBHOOK_TOKEN || process.env.EMAIL_SIGNATURE_WEBHOOK_TOKEN;
+  const timeoutMs = getWebhookTimeoutMs();
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
   const headers: HeadersInit = {
     "Content-Type": "application/json",
     "X-RS-Tool": "RS_Tool-Email-Signature",
@@ -53,16 +56,35 @@ export const POST: APIRoute = async ({ request }) => {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(webhookUrl, {
-    method: "POST",
-    headers,
-    body: JSON.stringify(payload),
-  });
+  let response: Response;
+
+  try {
+    response = await fetch(webhookUrl, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      return jsonError(504, "WEBHOOK_TIMEOUT", `EasyComms webhook did not respond within ${timeoutMs}ms.`, {
+        timeoutMs,
+        requestId: payload.metadata.requestId,
+      });
+    }
+
+    return jsonError(502, "WEBHOOK_ERROR", "EasyComms webhook request failed.", {
+      requestId: payload.metadata.requestId,
+    });
+  } finally {
+    clearTimeout(timeout);
+  }
 
   if (!response.ok) {
     const responseText = await response.text().catch(() => "");
     return jsonError(502, "WEBHOOK_ERROR", `EasyComms webhook returned HTTP ${response.status}.`, {
-      body: responseText.slice(0, 500),
+      responsePreview: responseText.slice(0, 500),
+      requestId: payload.metadata.requestId,
     });
   }
 
@@ -71,5 +93,6 @@ export const POST: APIRoute = async ({ request }) => {
     recipient: payload.recipient,
     fileName: payload.signature.fileName,
     event: payload.event,
+    requestId: payload.metadata.requestId,
   });
 };

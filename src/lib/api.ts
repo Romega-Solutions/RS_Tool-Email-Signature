@@ -1,4 +1,5 @@
 import type { APIContext } from "astro";
+import { timingSafeEqual } from "node:crypto";
 
 const jsonHeaders = {
   "Content-Type": "application/json; charset=utf-8",
@@ -12,7 +13,8 @@ export type ApiErrorCode =
   | "INVALID_API_KEY"
   | "METHOD_NOT_ALLOWED"
   | "VALIDATION_ERROR"
-  | "WEBHOOK_ERROR";
+  | "WEBHOOK_ERROR"
+  | "WEBHOOK_TIMEOUT";
 
 export function jsonOk(data: unknown, init: ResponseInit = {}) {
   return new Response(
@@ -68,14 +70,30 @@ export function getConfiguredApiKeys() {
   ].filter((value): value is string => Boolean(value?.trim()));
 }
 
+export function getWebhookTimeoutMs() {
+  const rawValue = process.env.EASYCOMMS_WEBHOOK_TIMEOUT_MS || process.env.EMAIL_SIGNATURE_WEBHOOK_TIMEOUT_MS;
+  const parsedValue = rawValue ? Number.parseInt(rawValue, 10) : 10_000;
+
+  if (!Number.isFinite(parsedValue)) {
+    return 10_000;
+  }
+
+  return Math.min(Math.max(parsedValue, 1_000), 30_000);
+}
+
 export function getRequestApiKey(request: Request) {
   return request.headers.get("X-API-Key")?.trim() || "";
+}
+
+function safeCompare(a: string, b: string) {
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(Buffer.from(a), Buffer.from(b));
 }
 
 export function hasValidApiKey(request: Request) {
   const keys = getConfiguredApiKeys();
   const requestKey = getRequestApiKey(request);
-  return keys.length > 0 && requestKey.length > 0 && keys.includes(requestKey);
+  return keys.length > 0 && requestKey.length > 0 && keys.some((key) => safeCompare(requestKey, key));
 }
 
 export function requireApiKey({ request }: APIContext) {

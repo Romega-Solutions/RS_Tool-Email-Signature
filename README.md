@@ -20,6 +20,7 @@ The app is now a server-deployable Astro 5 project with an Org Chart-style headl
 | Package manager | npm |
 | Dev port | 4321 |
 | Automation | EasyComms/n8n webhook proxy |
+| Container | Dockerfile for standalone Astro server deployment |
 
 ## Commands
 
@@ -29,6 +30,7 @@ npm run dev
 npm run build
 npm start
 npm run qa:headless
+npm run qa:weekly-live
 ```
 
 For local API QA with protected routes:
@@ -57,12 +59,57 @@ Copy `.env.example` to `.env` or configure the same values in the deployment pla
 | `RS_TOOLS_API_KEY` | Optional | Future consolidated RS Tools fallback key. |
 | `EASYCOMMS_WEBHOOK_URL` | Yes for email delivery | Server-side EasyComms/n8n webhook target. |
 | `EASYCOMMS_WEBHOOK_TOKEN` | Optional | Bearer token sent to EasyComms/n8n. |
+| `EASYCOMMS_WEBHOOK_TIMEOUT_MS` | Optional | EasyComms/n8n request timeout. Defaults to `10000`, clamped to 1-30 seconds. |
+| `EMAIL_SIGNATURE_WEBHOOK_TIMEOUT_MS` | Optional | Backward-compatible timeout env name. |
 | `EMAIL_SIGNATURE_WEBHOOK_URL` | Optional | Backward-compatible webhook env name. |
 | `EMAIL_SIGNATURE_WEBHOOK_TOKEN` | Optional | Backward-compatible webhook token env name. |
 | `EMAIL_SIGNATURE_ALLOWED_DOMAINS` | Optional | Comma-separated public UI recipient domains. Defaults to `romega-solutions.com`. |
 | `PUBLIC_EMAIL_SIGNATURE_BASE_URL` | Optional | External base URL for docs/scripts. |
 
 Do not use `PUBLIC_` variables for webhook URLs or tokens. The browser should call this app, and this app should call EasyComms/n8n.
+
+## Docker
+
+```bash
+docker build -t rs-email-signature .
+docker run --rm -p 4321:4321 \
+  -e EMAIL_SIGNATURE_API_KEY=replace-with-generated-api-key \
+  -e EASYCOMMS_WEBHOOK_URL=https://n8n.example.com/webhook/email-signature \
+  rs-email-signature
+```
+
+## Easypanel Deployment
+
+Deploy this as a server app, not static hosting. The repo includes `docker-compose.easypanel.yml` for Easypanel-style deployment:
+
+```bash
+docker compose -f docker-compose.easypanel.yml up -d --build
+```
+
+Production env values:
+
+```text
+EMAIL_SIGNATURE_API_KEY=<generated API key>
+EASYCOMMS_WEBHOOK_URL=<production EasyComms/n8n webhook URL>
+EASYCOMMS_WEBHOOK_TOKEN=<optional bearer token>
+EASYCOMMS_WEBHOOK_TIMEOUT_MS=10000
+EMAIL_SIGNATURE_ALLOWED_DOMAINS=romega-solutions.com
+PUBLIC_EMAIL_SIGNATURE_BASE_URL=https://tools.romega-solutions.com/email-signature
+```
+
+The service health check calls `GET /api/health`.
+
+## Production QA
+
+Run the live smoke script against the deployed URL:
+
+```bash
+$env:EMAIL_SIGNATURE_BASE_URL="https://tools.romega-solutions.com/email-signature"
+$env:EMAIL_SIGNATURE_API_KEY="<production API key>"
+npm run qa:weekly-live
+```
+
+It checks the public UI, health API, schema API, and protected headless contract when an API key is present.
 
 ## Headless API
 
@@ -119,6 +166,12 @@ curl -X POST http://localhost:4321/api/signature/headless \
   "tool": "RS_Tool-Email-Signature",
   "service": "email-signature",
   "version": "0.1.0",
+  "metadata": {
+    "schemaVersion": "2026-05-17",
+    "requestId": "generated-request-id",
+    "hasImage": true,
+    "imageSizeBytes": 123456
+  },
   "recipient": {
     "email": "jane@romega-solutions.com",
     "name": "Jane Doe"
@@ -143,4 +196,6 @@ This keeps the Email Signature tool ready to communicate with future consolidate
 ## Documentation
 
 - [EasyComms and n8n setup](docs/N8N_SETUP_GUIDE.md)
+- [n8n workflow setup](n8n-workflows/SETUP.md)
+- [Import-ready EasyComms workflow](n8n-workflows/email-signature-easycomms.json)
 - [Current TODO/status](TODO.md)
