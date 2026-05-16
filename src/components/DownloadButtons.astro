@@ -116,6 +116,36 @@
     }
   }
 
+  function getSignatureField(fieldName: string): string {
+    const element = document.querySelector(`[data-field="${fieldName}"]`) as HTMLElement | null;
+    return element?.textContent?.trim() || "";
+  }
+
+  function getSignaturePayload(imageDataUrl?: string) {
+    return {
+      name: getSignatureField('name'),
+      title: getSignatureField('title'),
+      phone: getSignatureField('phone'),
+      email: getSignatureField('email'),
+      imageDataUrl,
+      source: 'email-signature-ui'
+    };
+  }
+
+  function downloadImage(dataUrl: string, fileName: string) {
+    const link = document.createElement('a');
+    link.download = fileName;
+    link.href = dataUrl;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  function makeFileName(userName: string) {
+    const sanitizedName = userName.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '') || 'user';
+    return `${sanitizedName}_email_signature.png`;
+  }
+
   document.addEventListener('DOMContentLoaded', function() {
     const downloadBtn = document.getElementById('download-btn') as HTMLButtonElement | null;
     const sendEmailBtn = document.getElementById('send-email-btn') as HTMLButtonElement | null;
@@ -131,18 +161,8 @@
         if (!dataUrl) return;
 
         // Get the user's name for the filename
-        const nameElement = document.querySelector('[data-field="name"]') as HTMLElement | null;
-        const userName = nameElement?.textContent?.trim() || 'user';
-        const sanitizedName = userName.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
-        const fileName = `${sanitizedName}_email_signature.png`;
-
-        // Create download link
-        const link = document.createElement('a');
-        link.download = fileName;
-        link.href = dataUrl;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        const userName = getSignatureField('name') || 'user';
+        downloadImage(dataUrl, makeFileName(userName));
 
         // Show success message
         downloadBtn.textContent = '✅ Downloaded!';
@@ -159,39 +179,41 @@
         
         if (!dataUrl) return;
 
-        // Get the user's email from the form
-        const emailElement = document.querySelector('[data-field="email"]') as HTMLElement | null;
-        const userEmail = emailElement?.textContent?.trim() || 'your email';
+        const payload = getSignaturePayload(dataUrl);
 
-        // Get the user's name for the filename
-        const nameElement = document.querySelector('[data-field="name"]') as HTMLElement | null;
-        const userName = nameElement?.textContent?.trim() || 'user';
-        const sanitizedName = userName.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
-        const fileName = `${sanitizedName}_email_signature.png`;
+        try {
+          const response = await fetch('/api/signature/send', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+          });
 
-        // For now, download the image (in the future, this will send to email)
-        const link = document.createElement('a');
-        link.download = fileName;
-        link.href = dataUrl;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+          const result = await response.json().catch(() => null);
 
-        // Show success message
-        sendEmailBtn.innerHTML = '<i data-lucide="check" class="w-5 h-5"></i> Sent!';
-        
-        // Update dialog with email and show it
-        if (sentToEmailSpan) {
-          sentToEmailSpan.textContent = userEmail;
-        }
-        
-        if (emailDialog) {
-          emailDialog.style.display = 'flex';
-          
-          // Re-initialize lucide icons in the dialog
-          if (window.lucide) {
-            window.lucide.createIcons();
+          if (!response.ok || !result?.ok) {
+            throw new Error(result?.error?.message || `Email automation failed with HTTP ${response.status}`);
           }
+
+          sendEmailBtn.innerHTML = '<i data-lucide="check" class="w-5 h-5"></i> Sent!';
+
+          if (sentToEmailSpan) {
+            sentToEmailSpan.textContent = payload.email || 'your email';
+          }
+
+          if (emailDialog) {
+            emailDialog.style.display = 'flex';
+
+            if (window.lucide) {
+              window.lucide.createIcons();
+            }
+          }
+        } catch (error) {
+          console.error('Email automation failed:', error);
+          const userName = payload.name || 'user';
+          downloadImage(dataUrl, makeFileName(userName));
+          alert('Email automation is not available yet. The signature image was downloaded instead.');
         }
 
         // Reset button after a delay
