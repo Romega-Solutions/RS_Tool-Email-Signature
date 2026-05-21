@@ -7,18 +7,15 @@ const headers = {
 
 const exampleEnvelope = {
   event: "email_signature.send_requested",
-  service: "email-signature",
   sourceTool: "RS_Tool-Email-Signature",
   version: "1.0",
-  requestedAt: "2026-05-21T00:00:00.000Z",
-  staffProfile: {
-    name: "KEN PATRICK GARCIA",
-    title: "FULL STACK DEVELOPER",
-    email: "name@romega-solutions.com",
-    phone: "+63 991 xxx xxxx",
-  },
-  delivery: {
-    webhookUrlEnvVar: "N8N_WEBHOOK_URL",
+  requestId: "sig_20260521_example",
+  occurredAt: "2026-05-21T00:00:00.000Z",
+  actor: { type: "api", name: "API Integration" },
+  data: {
+    name: "Jane Doe",
+    title: "Operations Manager",
+    email: "jane@romega-solutions.com",
   },
 };
 
