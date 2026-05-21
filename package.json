@@ -8,17 +8,22 @@
     "start": "node ./dist/server/entry.mjs",
     "preview": "astro preview",
     "astro": "astro",
+    "mcp": "node mcp/email-signature-server.mjs",
+    "mcp:smoke": "node scripts/mcp-smoke.mjs",
     "qa:headless": "node scripts/qa-headless.mjs",
     "qa:weekly-live": "node scripts/weekly-live-qa.mjs"
   },
   "dependencies": {
     "@astrojs/node": "^10.1.1",
     "@astrojs/react": "^5.0.5",
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "@tailwindcss/vite": "^4.3.0",
     "astro": "^6.3.3",
     "html-to-image": "^1.11.13",
+    "lucide": "^1.16.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
-    "tailwindcss": "^4.3.0"
+    "tailwindcss": "^4.3.0",
+    "zod": "^4.4.3"
   }
 }

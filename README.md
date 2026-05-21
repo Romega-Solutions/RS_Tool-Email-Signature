@@ -31,6 +31,7 @@ npm run dev
 npm run build
 npm audit --audit-level=moderate
 npm start
+npm run mcp:smoke
 npm run qa:headless
 npm run qa:weekly-live
 ```
@@ -112,6 +113,24 @@ npm run qa:weekly-live
 ```
 
 It checks the public UI, health API, schema API, and protected headless contract when an API key is present.
+
+## MCP Server
+
+The repo includes a local MCP stdio server for agent and automation clients:
+
+```bash
+npm run mcp
+```
+
+Smoke check it against a running app:
+
+```bash
+$env:EMAIL_SIGNATURE_BASE_URL="http://127.0.0.1:3005"
+$env:EMAIL_SIGNATURE_API_KEY="local-email-signature-key"
+npm run mcp:smoke
+```
+
+The smoke script lists the MCP tools and calls the health, schema, validate, and protected payload tools. It does not call the email-sending tool.
 
 ## Current n8n Workflow
 
@@ -211,6 +230,8 @@ This keeps the Email Signature tool ready to communicate with future consolidate
 ## Documentation
 
 - [EasyComms and n8n setup](docs/N8N_SETUP_GUIDE.md)
+- [MCP integration](docs/MCP_INTEGRATION.md)
+- [Weekly live QA](docs/weekly-live-qa.md)
 - [n8n workflow setup](n8n-workflows/SETUP.md)
 - [Import-ready EasyComms workflow](n8n-workflows/email-signature-easycomms.json)
 - [Current TODO/status](TODO.md)
