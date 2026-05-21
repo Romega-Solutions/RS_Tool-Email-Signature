@@ -3,6 +3,31 @@ const { formData = {}, onInput } = Astro.props;
 ---
 
 <form class="flex w-full max-w-md flex-col gap-4">
+  <div class="flex flex-col gap-3 rounded-lg border border-rs-neutral-200 bg-rs-neutral-50 p-4">
+    <div class="flex items-center justify-between gap-3">
+      <label class="font-source-sans text-sm font-semibold text-rs-primary-700" for="staff-directory-select">
+        Staff Directory
+      </label>
+      <button
+        id="staff-directory-load"
+        class="min-h-10 rounded-lg bg-rs-primary-600 px-4 py-2 font-source-sans text-sm font-semibold text-white transition-colors duration-200 hover:bg-rs-primary-700 focus:outline-none focus:ring-2 focus:ring-rs-primary-500 focus:ring-offset-2"
+        type="button"
+      >
+        Load staff
+      </button>
+    </div>
+    <select
+      id="staff-directory-select"
+      class="hidden min-h-11 rounded-lg border border-rs-neutral-300 bg-white px-4 py-3 font-source-sans text-base text-rs-neutral-700 transition-colors duration-200 hover:border-rs-neutral-400 focus:border-rs-primary-500 focus:outline-none focus:ring-2 focus:ring-rs-primary-500"
+      aria-label="Staff profile"
+      disabled
+    >
+      <option value="">Select a staff profile</option>
+    </select>
+    <p id="staff-directory-status" class="font-source-sans text-sm text-rs-neutral-600" role="status" aria-live="polite">
+      Manual entry is available.
+    </p>
+  </div>
   <label class="flex flex-col gap-1 font-source-sans text-sm font-semibold text-rs-primary-700" for="signature-name">
     Full name
     <input
@@ -60,3 +85,164 @@ const { formData = {}, onInput } = Astro.props;
     />
   </label>
 </form>
+
+<script>
+  type StaffProfile = Record<string, unknown> & {
+    name?: string;
+    fullName?: string;
+    firstName?: string;
+    lastName?: string;
+    title?: string;
+    jobTitle?: string;
+    position?: string;
+    email?: string;
+    workEmail?: string;
+  };
+
+  type StaffDirectoryResponse =
+    | { ok: true; enabled: true; people: StaffProfile[] }
+    | {
+        ok: false;
+        enabled: boolean;
+        reason: "missing-config" | "unavailable";
+        status?: number;
+        people: [];
+      };
+
+  const loadButton = document.querySelector<HTMLButtonElement>("#staff-directory-load");
+  const staffSelect = document.querySelector<HTMLSelectElement>("#staff-directory-select");
+  const statusText = document.querySelector<HTMLParagraphElement>("#staff-directory-status");
+  const nameInput = document.querySelector<HTMLInputElement>("#signature-name");
+  const titleInput = document.querySelector<HTMLInputElement>("#signature-title");
+  const emailInput = document.querySelector<HTMLInputElement>("#signature-email");
+
+  const staffProfiles = new Map<string, StaffProfile>();
+
+  function getText(value: unknown) {
+    return typeof value === "string" ? value.trim() : "";
+  }
+
+  function getStaffName(profile: StaffProfile) {
+    const directName = getText(profile.name) || getText(profile.fullName);
+    if (directName) return directName;
+
+    return [getText(profile.firstName), getText(profile.lastName)].filter(Boolean).join(" ");
+  }
+
+  function getStaffTitle(profile: StaffProfile) {
+    return getText(profile.title) || getText(profile.jobTitle) || getText(profile.position);
+  }
+
+  function getStaffEmail(profile: StaffProfile) {
+    return getText(profile.email) || getText(profile.workEmail);
+  }
+
+  function setStatus(message: string) {
+    if (statusText) {
+      statusText.textContent = message;
+    }
+  }
+
+  function setSelectVisible(visible: boolean) {
+    if (!staffSelect) return;
+
+    staffSelect.hidden = !visible;
+    staffSelect.classList.toggle("hidden", !visible);
+    staffSelect.disabled = !visible;
+  }
+
+  function dispatchInput(input: HTMLInputElement | null, value: string) {
+    if (!input || !value) return;
+
+    input.value = value;
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+
+  function resetSelect() {
+    if (!staffSelect) return;
+
+    staffProfiles.clear();
+    staffSelect.replaceChildren(new Option("Select a staff profile", ""));
+    staffSelect.value = "";
+    setSelectVisible(false);
+  }
+
+  function populateStaffSelect(people: StaffProfile[]) {
+    if (!staffSelect) return;
+
+    resetSelect();
+
+    people.forEach((profile, index) => {
+      const name = getStaffName(profile);
+      const email = getStaffEmail(profile);
+
+      if (!name && !email) return;
+
+      const key = String(index);
+      const label = [name, email].filter(Boolean).join(" - ");
+
+      staffProfiles.set(key, profile);
+      staffSelect.append(new Option(label, key));
+    });
+
+    if (staffProfiles.size === 0) {
+      setStatus("No staff profiles were returned. Manual entry is available.");
+      return;
+    }
+
+    setSelectVisible(true);
+    setStatus("Choose a staff profile or continue editing manually.");
+  }
+
+  loadButton?.addEventListener("click", async () => {
+    if (!loadButton) return;
+
+    loadButton.disabled = true;
+    setStatus("Loading staff directory...");
+
+    try {
+      const response = await fetch("/api/org-chart/people", {
+        cache: "no-store",
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const payload = (await response.json()) as StaffDirectoryResponse;
+
+      if (!payload.ok) {
+        resetSelect();
+
+        if (payload.reason === "missing-config") {
+          setStatus("Staff directory is not configured. Manual entry is available.");
+          return;
+        }
+
+        setStatus("Staff directory is unavailable. Manual entry is available.");
+        return;
+      }
+
+      populateStaffSelect(Array.isArray(payload.people) ? payload.people : []);
+    } catch {
+      resetSelect();
+      setStatus("Staff directory is unavailable. Manual entry is available.");
+    } finally {
+      loadButton.disabled = false;
+    }
+  });
+
+  staffSelect?.addEventListener("change", () => {
+    const profile = staffSelect.value ? staffProfiles.get(staffSelect.value) : null;
+
+    if (!profile) return;
+
+    dispatchInput(nameInput, getStaffName(profile));
+    dispatchInput(titleInput, getStaffTitle(profile));
+    dispatchInput(emailInput, getStaffEmail(profile));
+    setStatus("Staff profile loaded. You can still edit any field manually.");
+  });
+</script>
