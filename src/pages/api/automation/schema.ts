@@ -31,8 +31,20 @@ const automationSchema = {
     consumes: "org-chart",
     localEndpoint: "/api/org-chart/people",
   },
-  inboundEvents: ["email_signature.send_requested"],
+  inboundEvents: [
+    "org_chart.people.snapshot_ready",
+    "email_signature.send_requested",
+    "email_signature.delivery.status_updated",
+  ],
   outboundEvents: ["email_signature.send_requested"],
+  callbackEndpoints: [
+    {
+      event: "email_signature.delivery.status_updated",
+      method: "POST",
+      path: "/api/automation/callback",
+      auth: "X-API-Key",
+    },
+  ],
   webhookReady: true,
   n8n: {
     envVars: ["N8N_WEBHOOK_URL", "N8N_API_KEY"],
