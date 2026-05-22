@@ -67,6 +67,7 @@ export function getConfiguredApiKeys() {
     process.env.EMAIL_SIGNATURE_API_KEY,
     process.env.API_KEY,
     process.env.RS_TOOLS_API_KEY,
+    process.env.RS_TOOL_API_KEY,
   ].filter((value): value is string => Boolean(value?.trim()));
 }
 
@@ -107,6 +108,6 @@ export function requireApiKey({ request }: APIContext) {
     "INVALID_API_KEY",
     configured
       ? "Send a valid X-API-Key header to use this headless endpoint."
-      : "EMAIL_SIGNATURE_API_KEY or API_KEY is not configured on the server.",
+      : "EMAIL_SIGNATURE_API_KEY, API_KEY, RS_TOOLS_API_KEY, or RS_TOOL_API_KEY is not configured on the server.",
   );
 }

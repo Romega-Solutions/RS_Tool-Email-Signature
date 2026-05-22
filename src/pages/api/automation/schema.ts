@@ -25,7 +25,7 @@ const automationSchema = {
   version: "1.0",
   auth: {
     header: "X-API-Key",
-    envVars: ["RS_TOOL_API_KEY"],
+    envVars: ["EMAIL_SIGNATURE_API_KEY", "API_KEY", "RS_TOOLS_API_KEY", "RS_TOOL_API_KEY"],
   },
   staffDirectory: {
     consumes: "org-chart",
