@@ -1,27 +1,20 @@
 import type { APIRoute } from "astro";
 import { jsonError, jsonOk, readJson, requireApiKey } from "../../../lib/api";
+import {
+  allowedCallbackStatuses,
+  appendCallbackRecord,
+  type CallbackStatus,
+  type EmailSignatureCallbackBody,
+} from "../../../lib/callback-history";
 
 const allowedEvents = new Set(["email_signature.delivery.status_updated"]);
-const allowedStatuses = new Set(["queued", "sent", "failed", "pending"]);
-
-type CallbackBody = {
-  event?: unknown;
-  requestId?: unknown;
-  occurredAt?: unknown;
-  data?: {
-    signatureId?: unknown;
-    status?: unknown;
-    errorMessage?: unknown;
-    sentAt?: unknown;
-    providerMessageId?: unknown;
-  };
-};
+const allowedStatuses = new Set<string>(allowedCallbackStatuses);
 
 export const POST: APIRoute = async (context) => {
   const denied = requireApiKey(context);
   if (denied) return denied;
 
-  const body = (await readJson(context.request)) as CallbackBody | null;
+  const body = (await readJson(context.request)) as EmailSignatureCallbackBody | null;
 
   if (!body) {
     return jsonError(400, "BAD_JSON", "Request body must be valid JSON.");
@@ -41,12 +34,22 @@ export const POST: APIRoute = async (context) => {
     });
   }
 
+  let record;
+  try {
+    record = await appendCallbackRecord(body, status as CallbackStatus);
+  } catch (error) {
+    return jsonError(500, "CALLBACK_HISTORY_ERROR", "Callback was valid but could not be persisted.", {
+      message: error instanceof Error ? error.message : "Unknown callback history error.",
+    });
+  }
+
   return jsonOk({
     accepted: true,
     event: body.event,
     requestId: typeof body.requestId === "string" ? body.requestId : null,
     acceptedStatus: status,
     signatureId: typeof body.data?.signatureId === "string" ? body.data.signatureId : null,
-    persisted: false,
+    persisted: true,
+    record,
   });
 };

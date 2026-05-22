@@ -16,6 +16,9 @@ server.log
 server-*.log
 .server-*.pid
 
+# runtime callback history
+data/
+
 # environment variables
 .env
 .env.local

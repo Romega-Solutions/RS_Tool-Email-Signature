@@ -44,6 +44,13 @@ const automationSchema = {
       path: "/api/automation/callback",
       auth: "X-API-Key",
     },
+    {
+      event: "email_signature.delivery.status_updated",
+      method: "GET",
+      path: "/api/automation/callbacks",
+      auth: "X-API-Key",
+      purpose: "Recent persisted delivery status callback history.",
+    },
   ],
   webhookReady: true,
   n8n: {

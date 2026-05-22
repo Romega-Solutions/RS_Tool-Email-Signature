@@ -8,6 +8,7 @@ const jsonHeaders = {
 
 export type ApiErrorCode =
   | "BAD_JSON"
+  | "CALLBACK_HISTORY_ERROR"
   | "EASYCOMMS_NOT_CONFIGURED"
   | "FORBIDDEN_EMAIL_DOMAIN"
   | "INVALID_API_KEY"
