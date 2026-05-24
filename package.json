@@ -26,5 +26,8 @@
     "react-dom": "^19.2.6",
     "tailwindcss": "^4.3.0",
     "zod": "^4.4.3"
+  },
+  "overrides": {
+    "path-to-regexp": "6.3.0"
   }
 }
