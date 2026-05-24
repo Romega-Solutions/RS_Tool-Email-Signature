@@ -34,9 +34,9 @@ export const POST: APIRoute = async (context) => {
     });
   }
 
-  let record;
+  let persistence;
   try {
-    record = await appendCallbackRecord(body, status as CallbackStatus);
+    persistence = await appendCallbackRecord(body, status as CallbackStatus);
   } catch (error) {
     return jsonError(500, "CALLBACK_HISTORY_ERROR", "Callback was valid but could not be persisted.", {
       message: error instanceof Error ? error.message : "Unknown callback history error.",
@@ -50,6 +50,10 @@ export const POST: APIRoute = async (context) => {
     acceptedStatus: status,
     signatureId: typeof body.data?.signatureId === "string" ? body.data.signatureId : null,
     persisted: true,
-    record,
+    record: persistence.record,
+    persistence: {
+      durable: persistence.durable,
+      storage: persistence.storage,
+    },
   });
 };

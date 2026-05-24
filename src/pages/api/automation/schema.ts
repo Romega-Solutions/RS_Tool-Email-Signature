@@ -50,8 +50,13 @@ const automationSchema = {
       path: "/api/automation/callbacks",
       auth: "X-API-Key",
       purpose: "Recent persisted delivery status callback history.",
+      storage: "n8n_data_table_with_local_json_fallback",
     },
   ],
+  auditHistory: {
+    storage: "n8n_data_table_with_local_json_fallback",
+    envVars: ["N8N_URL", "N8N_API_KEY", "N8N_AUDIT_TABLE_ID"],
+  },
   webhookReady: true,
   n8n: {
     envVars: ["N8N_WEBHOOK_URL", "N8N_API_KEY"],
