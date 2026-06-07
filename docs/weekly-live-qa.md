@@ -47,6 +47,6 @@ npm run mcp:smoke
 
 ## Known External Blockers
 
-As of 2026-06-07 PHT, `https://rs-tool-email-signature.vercel.app` is publicly reachable, but the custom production route `https://tools.romega-solutions.com/email-signature` returns HTTP 404.
+As of 2026-06-08 PHT, `https://rs-tool-email-signature.vercel.app` is publicly reachable, and the Org Chart tools-domain router contains the `/email-signature` handoff.
 
-The production health endpoint reports `easyCommsReady:false` and `webhookConfigured:false`, which means the app can validate and expose automation contracts but cannot forward `/api/signature/send` requests until `EASYCOMMS_WEBHOOK_URL` or `EMAIL_SIGNATURE_WEBHOOK_URL` is configured in production.
+The production health endpoint reports `easyCommsReady:true` and `webhookConfigured:true`, so `/api/signature/send` can forward to the configured EasyComms/n8n webhook. A full protected live QA still needs `EMAIL_SIGNATURE_API_KEY` or a shared `API_KEY` in the local shell.

@@ -1,7 +1,7 @@
 # RS Email Signature — TODO
 
-> Status: Vercel production is live for UI, health, schema, and automation callback surfaces. The custom `tools.romega-solutions.com/email-signature` route is not mapped yet, and outgoing EasyComms send delivery remains disabled until `EASYCOMMS_WEBHOOK_URL` or `EMAIL_SIGNATURE_WEBHOOK_URL` is configured in production.
-> Last updated: 2026-06-07
+> Status: Vercel production is live for UI, health, schema, automation callback surfaces, and outgoing EasyComms send webhook readiness. The custom `tools.romega-solutions.com/email-signature` route is handled by the Org Chart tools-domain router.
+> Last updated: 2026-06-08
 
 ## Done
 
@@ -31,6 +31,7 @@
 - [x] Vercel server deployment is live at `https://rs-tool-email-signature.vercel.app`
 - [x] Production health and automation schema endpoints return HTTP 200 on the Vercel URL
 - [x] Production has an API key configured for protected headless/API-key surfaces
+- [x] Production has `EASYCOMMS_WEBHOOK_URL` configured and health reports `easyCommsReady:true`
 
 ## Remaining
 
@@ -38,10 +39,10 @@
 
 - [x] Configure `EMAIL_SIGNATURE_API_KEY` or shared `API_KEY` in production.
 - [x] Configure the n8n production webhook URL for use by deployment docs.
-- [ ] Configure `EASYCOMMS_WEBHOOK_URL` or `EMAIL_SIGNATURE_WEBHOOK_URL` in production for outgoing send delivery.
+- [x] Configure `EASYCOMMS_WEBHOOK_URL` or `EMAIL_SIGNATURE_WEBHOOK_URL` in production for outgoing send delivery.
 - [ ] Configure `EASYCOMMS_WEBHOOK_TOKEN` if the workflow requires bearer auth.
 - [x] Deploy as a server app, not static-only hosting.
-- [ ] Map `https://tools.romega-solutions.com/email-signature` to the Email Signature deployment. It currently returns HTTP 404.
+- [x] Add Org Chart tools-domain routing handoff for `https://tools.romega-solutions.com/email-signature`.
 - [ ] Run `npm run qa:weekly-live` against the deployed URL with a production API key available.
 
 ### EasyComms/n8n
