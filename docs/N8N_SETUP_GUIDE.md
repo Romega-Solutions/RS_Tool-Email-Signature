@@ -9,8 +9,10 @@ The browser must not call n8n directly with public webhook tokens.
 Public app URL:
 
 ```text
-https://tools.romega-solutions.com/email-signature
+https://rs-tool-email-signature.vercel.app
 ```
+
+Planned custom route: `https://tools.romega-solutions.com/email-signature`. As of 2026-06-07 PHT, that route returns HTTP 404 and should not be used for live QA until routing is mapped.
 
 Local development URL:
 

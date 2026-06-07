@@ -97,17 +97,19 @@ EASYCOMMS_WEBHOOK_URL=https://n8n-romega-n8n.ikuuwb.easypanel.host/webhook/rs-em
 EASYCOMMS_WEBHOOK_TOKEN=<optional bearer token>
 EASYCOMMS_WEBHOOK_TIMEOUT_MS=10000
 EMAIL_SIGNATURE_ALLOWED_DOMAINS=romega-solutions.com
-PUBLIC_EMAIL_SIGNATURE_BASE_URL=https://tools.romega-solutions.com/email-signature
+PUBLIC_EMAIL_SIGNATURE_BASE_URL=https://rs-tool-email-signature.vercel.app
 ```
 
 The service health check calls `GET /api/health`.
+
+The planned custom route is `https://tools.romega-solutions.com/email-signature`. As of 2026-06-07 PHT, that route still returns HTTP 404 and needs routing/proxy work before it can replace the Vercel URL.
 
 ## Production QA
 
 Run the live smoke script against the deployed URL:
 
 ```bash
-$env:EMAIL_SIGNATURE_BASE_URL="https://tools.romega-solutions.com/email-signature"
+$env:EMAIL_SIGNATURE_BASE_URL="https://rs-tool-email-signature.vercel.app"
 $env:EMAIL_SIGNATURE_API_KEY="<production API key>"
 npm run qa:weekly-live
 ```

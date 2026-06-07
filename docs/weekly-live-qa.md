@@ -9,11 +9,11 @@ Weekly QA checks the deployed UI, public health/schema endpoints, protected head
 ## Required Environment
 
 ```powershell
-$env:EMAIL_SIGNATURE_BASE_URL="https://tools.romega-solutions.com/email-signature"
+$env:EMAIL_SIGNATURE_BASE_URL="https://rs-tool-email-signature.vercel.app"
 $env:EMAIL_SIGNATURE_API_KEY="<production API key>"
 ```
 
-Use the actual Email Signature deployment URL when the custom tools route is not yet mapped to this app.
+Use `https://rs-tool-email-signature.vercel.app` for current production QA. The planned custom tools route is `https://tools.romega-solutions.com/email-signature`, but it is not mapped to this app yet.
 
 ## Commands
 
@@ -45,6 +45,8 @@ npm run mcp:smoke
   - `create_email_signature_payload`
   - `send_email_signature`
 
-## Known External Blocker
+## Known External Blockers
 
-As of the current local verification, the custom production route `https://tools.romega-solutions.com/email-signature` redirects into the Org Chart route and returns `404`. The latest Email Signature Vercel deployment is also protected by Vercel auth in the available account context. Local and CI smoke can pass, but live public QA remains blocked until the Vercel routing/auth context is corrected.
+As of 2026-06-07 PHT, `https://rs-tool-email-signature.vercel.app` is publicly reachable, but the custom production route `https://tools.romega-solutions.com/email-signature` returns HTTP 404.
+
+The production health endpoint reports `easyCommsReady:false` and `webhookConfigured:false`, which means the app can validate and expose automation contracts but cannot forward `/api/signature/send` requests until `EASYCOMMS_WEBHOOK_URL` or `EMAIL_SIGNATURE_WEBHOOK_URL` is configured in production.
