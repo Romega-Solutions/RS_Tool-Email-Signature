@@ -12,7 +12,7 @@ Public app URL:
 https://rs-tool-email-signature.vercel.app
 ```
 
-Planned custom route: `https://tools.romega-solutions.com/email-signature`. As of 2026-06-07 PHT, that route returns HTTP 404 and should not be used for live QA until routing is mapped.
+Planned custom route: `https://tools.romega-solutions.com/email-signature`. As of 2026-06-08 PHT, the Org Chart repo contains the route handoff, but the live tools-domain runtime still redirects into `/org-chart/email-signature` and returns HTTP 404. Do not use it for live QA until the Easypanel/tools-domain runtime is corrected.
 
 Local development URL:
 
