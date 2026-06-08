@@ -43,8 +43,9 @@
 - [ ] Configure `EASYCOMMS_WEBHOOK_TOKEN` if the workflow requires bearer auth.
 - [x] Deploy as a server app, not static-only hosting.
 - [x] Add Org Chart tools-domain routing handoff for `https://tools.romega-solutions.com/email-signature`.
-- [ ] Fix the deployed Easypanel/tools-domain runtime so `/email-signature/api/health` resolves to the Email Signature Vercel app instead of `/org-chart/email-signature/api/health`.
-- [ ] Run `npm run qa:weekly-live` against the deployed URL with a production API key available.
+- [x] Fix the deployed Easypanel/tools-domain runtime so `/email-signature/api/health` resolves to the Email Signature Vercel app instead of `/org-chart/email-signature/api/health`.
+- [x] Run `npm run qa:weekly-live` against the deployed custom URL.
+- [ ] Run protected live QA with a production API key available.
 
 ### EasyComms/n8n
 

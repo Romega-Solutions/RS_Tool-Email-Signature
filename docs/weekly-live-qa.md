@@ -9,11 +9,11 @@ Weekly QA checks the deployed UI, public health/schema endpoints, protected head
 ## Required Environment
 
 ```powershell
-$env:EMAIL_SIGNATURE_BASE_URL="https://rs-tool-email-signature.vercel.app"
+$env:EMAIL_SIGNATURE_BASE_URL="https://tools.romega-solutions.com/email-signature"
 $env:EMAIL_SIGNATURE_API_KEY="<production API key>"
 ```
 
-Use `https://rs-tool-email-signature.vercel.app` for current production QA. The planned custom tools route is `https://tools.romega-solutions.com/email-signature`, but the live tools-domain runtime still routes it into Org Chart and returns HTTP 404.
+Use `https://tools.romega-solutions.com/email-signature` for current production QA. It redirects through the Org Chart tools-domain handoff to the Vercel Email Signature app.
 
 ## Commands
 
@@ -51,4 +51,4 @@ As of 2026-06-08 PHT, `https://rs-tool-email-signature.vercel.app` is publicly r
 
 The production health endpoint reports `easyCommsReady:true` and `webhookConfigured:true`, so `/api/signature/send` can forward to the configured EasyComms/n8n webhook. A full protected live QA still needs `EMAIL_SIGNATURE_API_KEY` or a shared `API_KEY` in the local shell.
 
-The custom tools-domain route is not live yet. `https://tools.romega-solutions.com/email-signature/api/health` still redirects to `/org-chart/email-signature/api/health` and returns HTTP 404, so keep weekly QA pointed at the Vercel URL until the Easypanel/tools-domain runtime is corrected.
+The custom tools-domain route is live. On 2026-06-08 PHT, `https://tools.romega-solutions.com/email-signature/api/health` redirected to the Vercel app and returned HTTP 200 with `easyCommsReady:true`; `npm run qa:weekly-live` against the custom URL passed public UI, health, and schema checks.

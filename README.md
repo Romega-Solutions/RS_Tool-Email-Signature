@@ -102,7 +102,7 @@ PUBLIC_EMAIL_SIGNATURE_BASE_URL=https://rs-tool-email-signature.vercel.app
 
 The service health check calls `GET /api/health`.
 
-The planned custom route is `https://tools.romega-solutions.com/email-signature`. As of 2026-06-08 PHT, the Org Chart repo contains the route handoff, but the live tools-domain runtime still redirects into `/org-chart/email-signature` and returns HTTP 404 before it can replace the Vercel URL.
+The custom route is `https://tools.romega-solutions.com/email-signature`. As of 2026-06-08 PHT, it redirects to the Vercel Email Signature app and `/api/health` plus `/api/automation/schema` return HTTP 200 through the tools-domain handoff.
 
 ## Production QA
 
