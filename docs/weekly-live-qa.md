@@ -45,10 +45,12 @@ npm run mcp:smoke
   - `create_email_signature_payload`
   - `send_email_signature`
 
-## Known External Blockers
+## Current Evidence
 
 As of 2026-06-08 PHT, `https://rs-tool-email-signature.vercel.app` is publicly reachable, and the Org Chart tools-domain router contains the `/email-signature` handoff.
 
-The production health endpoint reports `easyCommsReady:true` and `webhookConfigured:true`, so `/api/signature/send` can forward to the configured EasyComms/n8n webhook. A full protected live QA still needs `EMAIL_SIGNATURE_API_KEY` or a shared `API_KEY` in the local shell.
+The production health endpoint reports `easyCommsReady:true` and `webhookConfigured:true`, so `/api/signature/send` can forward to the configured EasyComms/n8n webhook.
 
 The custom tools-domain route is live. On 2026-06-08 PHT, `https://tools.romega-solutions.com/email-signature/api/health` redirected to the Vercel app and returned HTTP 200 with `easyCommsReady:true`; `npm run qa:weekly-live` against the custom URL passed public UI, health, and schema checks.
+
+Protected live QA is the only remaining manual-gated check. On 2026-06-08 PHT, the default QA key was rejected with HTTP 401, confirming production is not using the public local smoke key. Vercel CLI also rejected attempts to add a controlled production `RS_TOOLS_API_KEY` with `Additional permissions are required to create production environment variables.` To complete this check, run the command above with the existing production API key or grant production-env write permission and redeploy after adding `RS_TOOLS_API_KEY`.

@@ -109,12 +109,13 @@ The custom route is `https://tools.romega-solutions.com/email-signature`. As of 
 Run the live smoke script against the deployed URL:
 
 ```bash
-$env:EMAIL_SIGNATURE_BASE_URL="https://rs-tool-email-signature.vercel.app"
+$env:EMAIL_SIGNATURE_BASE_URL="https://tools.romega-solutions.com/email-signature"
 $env:EMAIL_SIGNATURE_API_KEY="<production API key>"
 npm run qa:weekly-live
 ```
 
 It checks the public UI, health API, schema API, and protected headless contract when an API key is present.
+The protected check requires the real production key or a Vercel production `RS_TOOLS_API_KEY`; the local QA key is rejected by production.
 
 ## MCP Server
 

@@ -1,6 +1,6 @@
 # RS Email Signature — TODO
 
-> Status: Vercel production is live for UI, health, schema, automation callback surfaces, and outgoing EasyComms send webhook readiness. The custom `tools.romega-solutions.com/email-signature` route is coded in the Org Chart tools-domain router but still fails live with a redirect into `/org-chart/email-signature`.
+> Status: Vercel production is live for UI, health, schema, automation callback surfaces, outgoing EasyComms send webhook readiness, and the custom `tools.romega-solutions.com/email-signature` route.
 > Last updated: 2026-06-08
 
 ## Done
@@ -45,14 +45,14 @@
 - [x] Add Org Chart tools-domain routing handoff for `https://tools.romega-solutions.com/email-signature`.
 - [x] Fix the deployed Easypanel/tools-domain runtime so `/email-signature/api/health` resolves to the Email Signature Vercel app instead of `/org-chart/email-signature/api/health`.
 - [x] Run `npm run qa:weekly-live` against the deployed custom URL.
-- [ ] Run protected live QA with a production API key available.
+- [ ] Run protected live QA with the existing production API key, or grant Vercel production-env write permission so Codex can add a controlled `RS_TOOLS_API_KEY`.
 
 ### EasyComms/n8n
 
 - [x] Create import-ready starter workflow that accepts `email_signature.send_requested`.
 - [x] Include a Gmail send node placeholder in `n8n-workflows/email-signature-easycomms.json`.
 - [x] Select the live Gmail credential after importing the workflow.
-- [ ] Keep the webhook credential in EasyComms/n8n, not in browser-exposed env.
+- [x] Keep the webhook credential in EasyComms/n8n, not in browser-exposed env.
 - [ ] Add this tool to the future consolidated RS Tools service registry.
 
 ### Team rollout
