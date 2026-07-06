@@ -14,7 +14,7 @@
     "qa:weekly-live": "node scripts/weekly-live-qa.mjs"
   },
   "dependencies": {
-    "@astrojs/node": "^11.0.1",
+    "@astrojs/node": "^11.0.2",
     "@astrojs/react": "^6.0.0",
     "@astrojs/vercel": "^11.0.1",
     "@modelcontextprotocol/sdk": "^1.29.0",
