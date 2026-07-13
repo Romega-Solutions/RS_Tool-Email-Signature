@@ -19,7 +19,7 @@
     "@astrojs/vercel": "^11.0.1",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "@tailwindcss/vite": "^4.3.2",
-    "astro": "^7.0.5",
+    "astro": "^7.0.7",
     "html-to-image": "^1.11.13",
     "lucide": "^1.23.0",
     "react": "^19.2.7",
