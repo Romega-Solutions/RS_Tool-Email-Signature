@@ -1,15 +1,22 @@
 @import "tailwindcss";
 @config "../../tailwind.config.js";
 
-/* The Seasons — self-hosted from public/ so html-to-image can inline it
-   same-origin when rasterizing the signature. Poppins comes from the
-   Google Fonts <link> in Layout.astro.
+/* Both faces self-hosted from public/ so html-to-image can inline them
+   same-origin when rasterizing the signature.
    font-display:block so an export can never capture a fallback frame. */
 @font-face {
   font-family: "The Seasons";
   src:
     url("/fonts/theseasons.woff2") format("woff2"),
     url("/fonts/theseasons.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/Poppins-Regular.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: block;
