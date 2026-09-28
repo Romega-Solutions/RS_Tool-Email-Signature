@@ -3,6 +3,38 @@ import BaseSignature from './BaseSignature.astro';
 const { formData } = Astro.props;
 ---
 
-<div id="signature-preview" class="my-6 flex max-w-full justify-start overflow-x-auto pb-2 lg:justify-center">
-  <BaseSignature {...formData} />
+<!-- The card is rigidly 600px wide now, so on narrow screens we scale the
+     wrapper down rather than force a horizontal scroll. The transform is on
+     the wrapper, never on #signature-card itself, so it cannot leak into the
+     PNG export. -->
+<div id="signature-preview" class="my-6 w-full max-w-full overflow-hidden pb-2">
+  <div
+    id="signature-scaler"
+    class="origin-top-left"
+    style="width:600px;height:300px;"
+  >
+    <BaseSignature {...formData} />
+  </div>
 </div>
+
+<script>
+  const CARD_W = 600;
+  const CARD_H = 300;
+
+  function scalePreview() {
+    const wrap = document.getElementById('signature-preview');
+    const scaler = document.getElementById('signature-scaler');
+    if (!wrap || !scaler) return;
+
+    const scale = Math.min(1, wrap.clientWidth / CARD_W);
+    scaler.style.transform = `scale(${scale})`;
+    // transform doesn't affect layout, so reserve the scaled height
+    // explicitly or a scaled-down card leaves dead space below it.
+    wrap.style.height = CARD_H * scale + 'px';
+  }
+
+  (window as any).scaleSignaturePreview = scalePreview;
+
+  window.addEventListener('resize', scalePreview);
+  scalePreview();
+</script>

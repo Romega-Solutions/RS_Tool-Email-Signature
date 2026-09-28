@@ -4,8 +4,12 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        'merriweather': ['Merriweather', 'serif'],
-        'source-sans': ['Source Sans 3', 'sans-serif'],
+        'seasons': ['The Seasons', 'serif'],
+        'poppins': ['Poppins', 'sans-serif'],
+        // Alias kept so the many existing `font-source-sans` usages across
+        // ControlsForm/Welcome/DownloadButtons keep working. Rename is a
+        // separate cleanup commit.
+        'source-sans': ['Poppins', 'sans-serif'],
       },
       fontWeight: {
         'thin': '100',

@@ -1,149 +1,150 @@
 ---
 const { name, title, phone, email } = Astro.props;
+
+// Banner artwork (public/signature-banner.png) is 1800x900 native. The CSS
+// design canvas is 600x300 and the export runs at pixelRatio 3, so the PNG
+// comes out exactly 1800x900 — 1:1 with the source art, no resampling.
+// Every offset below is CSS px (= native / 3).
+//
+// Measured off the artwork by decoding the PNG, not eyeballed
+// (native coords, divide by 3 for the values used here):
+//   photo band ends        y=341
+//   vertical divider       x=770..773, y=450..771
+//   RS logo lockup         x=55..742,  y=481..753
+//   left icon column       x=823..862  (phone y=676..716, globe y=731..770)
+//   right icon column      x=1289..1328 (mail y=676..716, pin y=729..769)
+//   baked www text         left edge x=905,  y=738..762
+//   baked HQ address       left edge x=1372, y=718..778 (two lines)
+// The phone and email overlays MUST share those two left edges so each
+// column reads as one flush-left block (905/3 and 1372/3 in CSS px).
+// The name and role share the LEFT ICON's left edge (x=823 -> 274.33 CSS),
+// so the whole right-hand block hangs off one vertical line.
+//   name/role zone         x=785..1795, y=360..669 -> verified empty
+//
+// Website and HQ address are baked into this artwork, so they are NOT drawn
+// here. Only the four editable fields are overlaid.
+//
+// Append ?calibrate to the URL to outline every slot and re-check.
+const W = 600;
+const H = 300;
 ---
-  
+
 <div
   id="signature-card"
-  class="bg-rs-primary-50 rounded-xl shadow-lg p-4 flex flex-row flex-nowrap gap-[10px] items-center border border-rs-primary-200 w-fit max-w-full font-source-sans"
-  style="min-width: 400px; width: fit-content;"
+  class="relative overflow-hidden select-none"
+  style={`width:${W}px;height:${H}px;min-width:${W}px;max-width:${W}px;flex:0 0 auto;background:#226093;`}
 >
+  <!-- Background artwork. Deliberately an <img>, not a CSS background-image:
+       html-to-image's embedImages path awaits onload on the clone, and it lets
+       us gate the export on img.decode(). A CSS background gives neither. -->
   <img
-    data-field="logoUrl"
-    src="/romega-logo.svg"
-    alt="Romega Solutions Logo"
-    class="object-contain rounded flex-shrink-0"
-    style="width: 84px; height: 131px; min-width: 84px;"
+    id="signature-bg"
+    src="/signature-banner.png"
+    alt=""
+    width={W}
+    height={H}
+    decoding="sync"
+    class="absolute inset-0 block pointer-events-none"
+    style={`width:${W}px;height:${H}px;`}
   />
-  
-  <!-- Vertical Divider Line -->
-  <div class="w-px h-[130px] bg-rs-primary-700 flex-shrink-0"></div>
-  
-  <div class="flex-1 flex flex-col gap-2" style="min-width: 250px; max-width: 600px;">
-   <!-- Name and Title Section -->
-    <div class="flex flex-col">
-      <span
-        data-field="name"
-        class="font-merriweather font-bold text-rs-primary-700 leading-tight tracking-wide text-xl break-words"
-        style="word-wrap: break-word; overflow-wrap: break-word; hyphens: auto;"
-      >
-        {name}
-      </span>
-      <span
-        data-field="title"
-        class="font-source-sans font-medium text-rs-accent-500 leading-[13px] uppercase tracking-normal text-[20px] break-words"
-        style="line-height: 20px; letter-spacing: 0%; word-wrap: break-word; overflow-wrap: break-word; hyphens: auto;"
-      >
-        {title}
-      </span>
-    </div>
-    
-    <!-- Contact Information Section -->
-    <div class="mt-2 flex flex-col gap-1 text-[12.5px]">
-      <div class="flex items-center gap-2">
-        <img
-          src="/call.svg"
-          alt="Call Icon"
-          class="w-4 h-4 inline-block align-middle"
-        />
-        <span class="font-source-sans text-rs-neutral-700 font-light">WhatsApp (PH)</span>
-        <span data-field="phone" class="font-source-sans font-medium text-rs-primary-700 break-words">{phone}</span>
-      </div>
-      
-      <div class="flex items-center gap-2">
-        <img
-          src="/at.svg"
-          alt="Email Icon"
-          class="w-4 h-4 inline-block align-middle"
-        />
-        <span data-field="email" class="font-source-sans text-rs-primary-700 break-words">{email}</span>
-      </div>
-      
-      <div class="flex items-center gap-2">
-        <img
-          src="/globe.svg"
-          alt="Globe Icon"
-          class="w-4 h-4 inline-block align-middle"
-        />
-        <span class="font-source-sans text-rs-primary-700 underline italic break-all">www.romega-solutions.com</span>
-      </div>
-      
-      <div class="flex items-start gap-2">
-        <img
-          src="/address.svg"
-          alt="Address Icon"
-          class="w-4 h-4 inline-block align-middle"
-        />
-        <div class="flex flex-col">
-          <span>
-                      <span class="font-source-sans text-rs-neutral-700 font-light">HQ Address (US) </span> <span class="font-source-sans text-rs-primary-700 break-words">222 Pacific Coast</span>
-          </span>
-          <span class="font-source-sans text-rs-primary-700 break-words">Hwy. #10 in El Segundo, CA 90245</span>
-        </div>
-      </div>
-    </div>
-  </div>
+
+  <!-- Full name -->
+  <span
+    data-field="name"
+    class="sig-fit absolute block whitespace-nowrap text-white"
+    data-max-font="36.5"
+    data-min-font="10"
+    style="left:274.33px; top:146.7px; width:319.67px; height:52px; line-height:52px;
+           font-family:'The Seasons', serif; font-size:36.5px; letter-spacing:0.01em;"
+  >{name}</span>
+
+  <!-- Position / role -->
+  <span
+    data-field="title"
+    class="sig-fit absolute block whitespace-nowrap"
+    data-max-font="18"
+    data-min-font="6"
+    style="left:274.33px; top:182.76px; width:319.67px; height:28px; line-height:28px;
+           font-family:'Poppins', sans-serif; font-weight:300; font-size:18px;
+           color:#ffffff;"
+  >{title}</span>
+
+  <!-- Phone, right of the WhatsApp icon (above the baked website line).
+       The "WhatsApp #" label sits OUTSIDE [data-field="phone"] on purpose:
+       Welcome.astro overwrites that span's textContent on every keystroke and
+       DownloadButtons scrapes it for the API payload, so a label inside it
+       would be wiped on edit and would pollute the outgoing phone value.
+       The fitter runs on this container so label and number shrink together;
+       the children inherit its font-size. -->
+  <div
+    class="sig-fit absolute block whitespace-nowrap"
+    data-max-font="8.5"
+    data-min-font="4.5"
+    style="left:301.67px; top:225px; width:125px; height:14px; line-height:14px;
+           font-family:'Poppins', sans-serif; font-weight:200; font-size:8.5px;
+           color:#ffffff; text-decoration:underline;"
+  >WhatsApp # <span data-field="phone">{phone}</span></div>
+
+  <!-- Email, right of the mail icon (above the baked HQ address block) -->
+  <span
+    data-field="email"
+    class="sig-fit absolute block whitespace-nowrap"
+    data-max-font="8.5"
+    data-min-font="4.5"
+    style="left:457.33px; top:225px; width:127.33px; height:14px; line-height:14px;
+           font-family:'Poppins', sans-serif; font-weight:400; font-size:8.5px;
+           color:#ffffff; text-decoration:underline;"
+  >{email}</span>
 </div>
 
 <script>
-  // Dynamic width adjustment based on content
-  function adjustSignatureWidth() {
-    const card = document.getElementById('signature-card');
-    if (!card) return;
+  // Shrink-to-fit. Each .sig-fit span is a fixed-width nowrap box, so
+  // scrollWidth reports the true text width and overflow is detectable.
+  // Binary-search the font-size between data-min-font and data-max-font.
+  function fitOne(el: HTMLElement) {
+    const max = Number(el.dataset.maxFont);
+    const min = Number(el.dataset.minFont);
+    if (!Number.isFinite(max) || !Number.isFinite(min)) return;
 
-    const nameElement = card.querySelector('[data-field="name"]') as HTMLElement;
-    const titleElement = card.querySelector('[data-field="title"]') as HTMLElement;
-    const emailElement = card.querySelector('[data-field="email"]') as HTMLElement;
-    const phoneElement = card.querySelector('[data-field="phone"]') as HTMLElement;
+    el.style.fontSize = max + 'px';
+    if (el.scrollWidth <= el.clientWidth) return;
 
-    if (!nameElement || !titleElement) return;
-
-    // Calculate the longest content width
-    const elements = [nameElement, titleElement, emailElement, phoneElement];
-    let maxTextLength = 0;
-
-    elements.forEach(el => {
-      if (el) {
-        const text = el.textContent || '';
-        maxTextLength = Math.max(maxTextLength, text.length);
-      }
-    });
-
-    // Adjust card width based on content length
-    // Base width: 400px, add extra width for longer content
-    let calculatedWidth = 400;
-
-    if (maxTextLength > 30) {
-      calculatedWidth = 450;
+    let lo = min;
+    let hi = max;
+    for (let i = 0; i < 12; i++) {
+      const mid = (lo + hi) / 2;
+      el.style.fontSize = mid + 'px';
+      if (el.scrollWidth <= el.clientWidth) lo = mid;
+      else hi = mid;
     }
-    if (maxTextLength > 40) {
-      calculatedWidth = 500;
-    }
-    if (maxTextLength > 50) {
-      calculatedWidth = 550;
-    }
-    if (maxTextLength > 60) {
-      calculatedWidth = 600;
-    }
-    if (maxTextLength > 70) {
-      calculatedWidth = 650;
-    }
-
-    // Apply the calculated width
-    card.style.minWidth = `${calculatedWidth}px`;
+    // Floor, never round: toFixed() rounds to nearest, which can land ABOVE
+    // `lo` and reintroduce the overflow the search just eliminated.
+    el.style.fontSize = (Math.floor(lo * 100) / 100) + 'px';
   }
 
-  // Run on page load
-  document.addEventListener('DOMContentLoaded', adjustSignatureWidth);
+  function fitSignatureText() {
+    document
+      .querySelectorAll<HTMLElement>('#signature-card .sig-fit')
+      .forEach(fitOne);
+  }
 
-  // Re-adjust when content changes (for live preview)
-  const observer = new MutationObserver(adjustSignatureWidth);
-  const card = document.getElementById('signature-card');
-  
-  if (card) {
-    observer.observe(card, {
-      characterData: true,
-      childList: true,
-      subtree: true
-    });
+  (window as any).fitSignatureText = fitSignatureText;
+
+  // Must wait for the real faces: measuring against a fallback font yields
+  // wrong sizes that then stick.
+  if (document.fonts?.ready) {
+    document.fonts.ready.then(fitSignatureText);
+  }
+  fitSignatureText();
+
+  // Calibration aid: ?calibrate outlines each slot so the rects can be
+  // re-checked against the artwork without guessing.
+  if (new URLSearchParams(location.search).has('calibrate')) {
+    document
+      .querySelectorAll<HTMLElement>('#signature-card .sig-fit')
+      .forEach((el) => {
+        el.style.outline = '1px solid rgba(255,0,0,0.9)';
+        el.style.background = 'rgba(255,0,0,0.15)';
+      });
   }
 </script>

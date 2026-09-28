@@ -62,6 +62,51 @@
     window.renderRomegaIcons?.();
   }
 
+  // Design canvas. The banner artwork is 1800x900 native, so 600x300 at
+  // pixelRatio 3 exports exactly 1:1 with the source art — no resampling.
+  const CARD_W = 600;
+  const CARD_H = 300;
+  const EXPORT_SCALE = 3;
+
+  // html-to-image rasterizes whatever is on screen right now. If a webfont or
+  // the banner bitmap hasn't finished, the export silently falls back to a
+  // system font or a blank panel, with no error. Gate on both.
+  async function waitForSignatureReady(node: HTMLElement) {
+    if (document.fonts) {
+      try {
+        await document.fonts.ready;
+        await Promise.all([
+          document.fonts.load('25px "The Seasons"', 'Ag'),
+          document.fonts.load('400 9px "Poppins"', 'Ag'),
+          document.fonts.load('300 12px "Poppins"', 'Ag')
+        ]);
+      } catch {
+        // Fall through: a fallback font beats blocking the download.
+      }
+    }
+
+    // `complete` can be true while the bitmap is still decoding off-thread —
+    // that is exactly how a blank banner ends up in the PNG. decode() is the
+    // real gate.
+    const images = Array.from(node.querySelectorAll('img'));
+    await Promise.all(
+      images.map((img) =>
+        img.complete && img.naturalWidth > 0
+          ? (img.decode ? img.decode().catch(() => undefined) : Promise.resolve())
+          : new Promise((resolve) => {
+              img.addEventListener('load', () => resolve(null), { once: true });
+              img.addEventListener('error', () => resolve(null), { once: true });
+            })
+      )
+    );
+
+    // Re-fit now that real font metrics are available.
+    (window as any).fitSignatureText?.();
+
+    // Let layout settle before rasterizing.
+    await new Promise(requestAnimationFrame);
+  }
+
   // Function to generate the signature image
   async function generateSignatureImage(button: HTMLButtonElement): Promise<string | null> {
     const node = document.getElementById('signature-card') as HTMLElement | null;
@@ -78,33 +123,16 @@
     renderIcons();
 
     try {
-      // Get the actual computed background color from the card
-      const computedBgColor = getComputedStyle(node).backgroundColor;
-      // Fallback to the rs-primary-50 color if computed is transparent or empty
-      const bgColor = (!computedBgColor || computedBgColor === 'transparent' || computedBgColor === 'rgba(0, 0, 0, 0)')
-        ? 'hsla(207, 77%, 95%, 1)'
-        : computedBgColor;
+      await waitForSignatureReady(node);
 
-      // Generate the image with better quality and preserve styling
       const dataUrl = await window.htmlToImage.toPng(node, {
-        quality: 1.0,
-        pixelRatio: 2, // Higher resolution
-        backgroundColor: bgColor, // Use actual card background color
-        style: {
-          transform: 'scale(1)',
-          transformOrigin: 'top left',
-          // Preserve all existing styles
-          borderRadius: node.style.borderRadius || '0.75rem',
-          boxShadow: getComputedStyle(node).boxShadow,
-          border: getComputedStyle(node).border,
-          padding: getComputedStyle(node).padding
-        },
-        filter: (element: HTMLElement) => {
-          // Include all elements (don't filter out any)
-          return true;
-        },
-        useCORS: true,
-        allowTaint: true
+        pixelRatio: EXPORT_SCALE,
+        width: CARD_W,
+        height: CARD_H,
+        // Banner is opaque and covers the whole box; this only shows if the
+        // artwork fails to load, so degrade to the banner blue, not white.
+        backgroundColor: '#226093',
+        cacheBust: true
       });
 
       button.innerHTML = originalHtml;

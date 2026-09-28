@@ -4,8 +4,8 @@ import SignaturePreview from './SignaturePreview.astro';
 import DownloadButtons from './DownloadButtons.astro';
 
 const defaultData = {
-  name: "KEN PATRICK GARCIA",
-  title: "FULL STACK DEVELOPER (CROSS-PLATFORM)",
+  name: "Ken Patrick Garcia",
+  title: "Full Stack Developer (Cross-Platform)",
   phone: "+63 991 xxx xxxx",
   email: "kengarcia@romega-solutions.com"
 };
@@ -19,7 +19,7 @@ const defaultData = {
         <div class="flex items-center gap-4">
           <img src="/romega-logo.svg" alt="Romega Solutions" class="h-12 w-auto flex-shrink-0" />
           <div>
-            <h1 class="font-merriweather text-2xl font-bold leading-tight text-rs-primary-700">
+            <h1 class="font-poppins text-2xl font-bold leading-tight text-rs-primary-700">
               Email Signature Creator
             </h1>
             <p class="font-source-sans text-sm text-rs-neutral-600">
@@ -299,6 +299,8 @@ const defaultData = {
         
         if (target) {
           target.textContent = fieldValue;
+          // Re-run shrink-to-fit so long values stay inside their slot.
+          window.fitSignatureText?.();
         }
       }
     });
